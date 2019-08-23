@@ -9,7 +9,7 @@ int geometry (Point ** Grid){
 	int i,j;
 	
 	double T_X = 1E2;
-	double T_Y = 1E4;
+	double T_Y = 1E5;
 	
 	// Enumerate points:
 
@@ -112,7 +112,7 @@ int RT_parameters (Point ** Grid){
 
 	for (i=0; i<NX; i++)
 		for (j=0; j<NY; j++){
-			Grid[i][j].B = 1.0 + 0.0 * cos(Grid[i][j].X * 2 * pi / 1.*Globals::getX(NX-1));
+			Grid[i][j].B = 1.0;// + 0.0 * cos(Grid[i][j].X * 2 * pi / 1.*Globals::getX(NX-1));
 			Grid[i][j].Chi = 1.0; // We will write the procedure for interpolation regardless of whatever happens.
 			Grid[i][j].ep = 1E-4;
 			Grid[i][j].S = 1; //Grid[i][j].B; // Initial vallue
@@ -147,7 +147,7 @@ int RT_parameters (Point ** Grid){
 			Grid[i][j].BB3 = 0;
 			Grid[i][j].BB4 = 0;
 		}
-	Grid[50][40].B+=0.05;
+	//Grid[50][40].B+=0.05;
 
 	return 0;
 }

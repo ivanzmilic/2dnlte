@@ -10,7 +10,7 @@ int main() {
 // First we set up the geometry of the problem.
 
 	int NX = 101;
-	int NY = 61;
+	int NY = 82;
 	Globals::setNX(NX);
 	Globals::setNY(NY);
 	
@@ -56,8 +56,8 @@ int main() {
 		for (j=0; j<NY; j++)
 			Grid[i][j].allocate_I();
 
-	int MAX_ITER = 200; // Maximum number of iterations we want to perform
-	double sigma = 1E-3; // We stop the iterative process when we reach this relative change
+	int MAX_ITER = 1000; // Maximum number of iterations we want to perform
+	double sigma = 1E-4; // We stop the iterative process when we reach this relative change
 	
 // --------------------------------------------------------------------------------------------------------------------------------
 
@@ -69,8 +69,8 @@ int main() {
 	
 	//Jacobi_explicit_full (Grid, MAX_ITER, sigma);	
 	//GS_explicit_full (Grid, MAX_ITER, sigma);
-	//SSOR_explicit_full (Grid, MAX_ITER, sigma);
-	FBILI_explicit_full_2factors (Grid, MAX_ITER, sigma);
+	SSOR_explicit_full (Grid, MAX_ITER, sigma);
+	//FBILI_explicit_full_2factors (Grid, MAX_ITER, sigma);
 	
 	//Globals::set_factor(1);
 	

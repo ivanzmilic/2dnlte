@@ -29,7 +29,6 @@ int Point::deallocate_rays (){
 	
 	for (int g=0; g<Globals::getNT(); g++)
 		delete []rays[g];
-		
 	delete []rays;
 }
 
@@ -715,12 +714,13 @@ int Point::interpolate_simple (int g, int m, Point ** Grid){
 	}
 	
 	// Allocate space for the upwind Intensity:
-	
 	rays[g][m].Iu = new (nothrow) double [Globals::getN()];
 	
 	// And now after all has been done, we interpolate:
 	if (dointerpol == 1){
 		rays[g][m].Su = interpolate_bezier (ksi1, ksi2, ksi3, Grid[i1][j1].S, Grid[i2][j2].S , Grid[i3][j3].S, ksi);
+		rays[g][m].Chi = interpolate_bezier (ksi1, ksi2, ksi3, Grid[i1][j1].Chi, Grid[i2][j2].Chi , Grid[i3][j3].Chi, ksi);
+		rays[g][m].Chi = 1.0;
 		for (int n=0; n<Globals::getN(); n++)
 			rays[g][m].Iu[n] = interpolate_bezier (ksi1, ksi2, ksi3, Grid[i1][j1].I[g][m][n], Grid[i2][j2].I[g][m][n], Grid[i3][j3].I[g][m][n], ksi);
 	}
@@ -1278,7 +1278,7 @@ int Point::compute_pqr_explicit_full (int g, int m){
 	int NX = Globals::getNX();
 	int NY = Globals::getNY();
 	
-	double margin = 1e-4;
+	double margin = 0.01;
 	
 	int N = Globals::getN();
 	rays[g][m].dt_u = new (nothrow) double [N];
@@ -1287,10 +1287,10 @@ int Point::compute_pqr_explicit_full (int g, int m){
 	
 	// Now distance in 3D space:
 	double distance = sqrt ((X - rays[g][m].Xu) * (X - rays[g][m].Xu) + (Y - rays[g][m].Yu) * (Y - rays[g][m].Yu)) / Globals::getcostheta(g);
-	double dt;
+	double dt=0.0;
 	
 	for (n=0; n<N; n++)
-		rays[g][m].dt_u[n] = distance * Globals::getprofile(n);
+		rays[g][m].dt_u[n] = distance * (1.0 + Chi)* Globals::getprofile(n);
 		
 	// Here we compute p,q,r with the assumption of parabolic shape of the source function:
 		

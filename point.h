@@ -16,7 +16,8 @@ class Ray{
 	double Yu;
 	
 	int type_u;
-	double * dt_u; // Optical path distance between local and the upwind point.
+	double * dt_u; // geometrical path distance between local and the upwind point.
+	double Chi; // opacity at the point
 	
 	// Physical quantities in the upwind point:
 	
