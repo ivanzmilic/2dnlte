@@ -9,3 +9,6 @@
 
 #And of course all the objects
 *.o
+
+#And last but most despised, IDL codes:
+*.pro
