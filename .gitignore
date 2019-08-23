@@ -1,0 +1,11 @@
+#Ignore all the data files 
+*.txt
+*.dat
+
+#Figures and plots 
+*.eps 
+*.png
+*.jpg
+
+#And of course all the objects
+*.o
