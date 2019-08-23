@@ -8,8 +8,8 @@ int geometry (Point ** Grid){
 	int NY = Globals::getNY();
 	int i,j;
 	
-	double T_X = 1E2;
-	double T_Y = 1E5;
+	double T_X = 50;
+	double T_Y = 1E4;
 	
 	// Enumerate points:
 
@@ -41,7 +41,7 @@ int geometry (Point ** Grid){
 			Ystep = (log10(T_Y/2.0) - smallestexp) / (centerY-1);
 
 		else 
-			Ystep = (log10(T_Y) - smallestexp) / (NY-1);
+			Ystep = (log10(T_Y) - smallestexp) / (NY-2);
 		
 		for (i=0; i<centerX+1; i++)
 			for (j=0; j<NY; j++){
@@ -94,6 +94,19 @@ int geometry (Point ** Grid){
 					Grid[i][j].X = i *  Xstep;
 
 		}
+
+		int equidistant_Y = 0;
+
+		if (equidistant_Y == 1){
+
+			Ystep = T_Y / (NY-1);
+
+			for (i=0; i<NX; i++)
+				for (j=0; j<NY;j++)
+
+					Grid[i][j].Y = j *  Ystep;
+
+		}
 	}
 
 	// Now copy relevant stuff into the globals:
@@ -113,7 +126,7 @@ int RT_parameters (Point ** Grid){
 	for (i=0; i<NX; i++)
 		for (j=0; j<NY; j++){
 			Grid[i][j].B = 1.0;// + 0.0 * cos(Grid[i][j].X * 2 * pi / 1.*Globals::getX(NX-1));
-			Grid[i][j].Chi = 1.0; // We will write the procedure for interpolation regardless of whatever happens.
+			Grid[i][j].Chi = 1.0;//1E5/ 150. * exp(-(Grid[i][NY-1].Y - Grid[i][j].Y)/150.0);
 			Grid[i][j].ep = 1E-4;
 			Grid[i][j].S = 1; //Grid[i][j].B; // Initial vallue
 			Grid[i][j].dS = 0;
@@ -147,7 +160,7 @@ int RT_parameters (Point ** Grid){
 			Grid[i][j].BB3 = 0;
 			Grid[i][j].BB4 = 0;
 		}
-	//Grid[50][40].B+=0.05;
+	//Grid[50][50].B+=0.05;
 
 	return 0;
 }

@@ -720,7 +720,7 @@ int Point::interpolate_simple (int g, int m, Point ** Grid){
 	if (dointerpol == 1){
 		rays[g][m].Su = interpolate_bezier (ksi1, ksi2, ksi3, Grid[i1][j1].S, Grid[i2][j2].S , Grid[i3][j3].S, ksi);
 		rays[g][m].Chi = interpolate_bezier (ksi1, ksi2, ksi3, Grid[i1][j1].Chi, Grid[i2][j2].Chi , Grid[i3][j3].Chi, ksi);
-		rays[g][m].Chi = 1.0;
+		//rays[g][m].Chi = 1.0;
 		for (int n=0; n<Globals::getN(); n++)
 			rays[g][m].Iu[n] = interpolate_bezier (ksi1, ksi2, ksi3, Grid[i1][j1].I[g][m][n], Grid[i2][j2].I[g][m][n], Grid[i3][j3].I[g][m][n], ksi);
 	}
@@ -728,6 +728,7 @@ int Point::interpolate_simple (int g, int m, Point ** Grid){
 	else{
 
 		if (periodic_boundary == 0){
+			rays[g][m].Chi = Chi;
 			for (int n = 0; n<Globals::getN(); n++){
 			
 			// We now have four input directions:
@@ -765,6 +766,8 @@ int Point::interpolate_simple (int g, int m, Point ** Grid){
 	double index_i;
 
 	if (periodic_boundary == 1){
+
+		rays[g][m].Chi = Chi;
 
 		if (j==0 && Globals::getphi_C(g,m) <= pi)
 			for (n=0; n<N; n++)
@@ -1290,7 +1293,7 @@ int Point::compute_pqr_explicit_full (int g, int m){
 	double dt=0.0;
 	
 	for (n=0; n<N; n++)
-		rays[g][m].dt_u[n] = distance * (1.0 + Chi)* Globals::getprofile(n);
+		rays[g][m].dt_u[n] = distance * 0.5 *(Chi + rays[g][m].Chi) * Globals::getprofile(n);
 		
 	// Here we compute p,q,r with the assumption of parabolic shape of the source function:
 		

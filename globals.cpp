@@ -97,7 +97,6 @@ void Globals::compute_profile(){
 			norm += profile[n] * wx[n];
 		for (n=0; n<N; n++)
 			wx[n] /= norm;
-
 	}
 }
 	
