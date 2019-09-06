@@ -12,12 +12,28 @@ import matplotlib
 matplotlib.rc('font', **font)  
 
 #-------------------------------------------
-# Short characteristics formal solver:
+# Short characteristics formal solver. Solves for intensity along the ray using 
+# second order polynomial based interpolation between the points. 
+# INPUT:
+# ------------------------------------------------------------------------------------  
+# tau - a 1D array of optical depths 
+# S   - a 1D array of source functions
+# mu  - scalar cos of the angle w.r.t to atmospheric normal. positive is outgoing rays.
+#       negative for incoming ones. 
+# I_boundary - scalar, boundary condition (for the given mu)
+# ------------------------------------------------------------------------------------
+# 
+# OUTPUT:
+# I - intensity at each point in the atmosphere.
+# L - approximate lambda operator at each point in the atmosphere. 
+# The function returns these two stacked. 
+
 @jit('float64[:,:](float64[:],float64[:],float64,float64)',nopython=True)
 def sc_2nd_order(tau, S, mu, I_boundary):
 
-	#first we determine direction:
 	ND = S.shape[0]
+	
+	#first we determine direction, to see how we sweep the grid.
 	begin = ND-1
 	end = -1
 	step = -1
@@ -26,18 +42,20 @@ def sc_2nd_order(tau, S, mu, I_boundary):
 		end = S.shape[0]
 		step = 1
 
+	# allocate space for the output:
 	I = np.zeros(ND)
 	L = np.zeros(ND)
 	I[begin] = I_boundary
-	#L[begin] = I[begin] / S[begin]
 	
+	# go one point at the time and solve RTE in the integral form on little segments:
 	for d in range(begin+step,end-step,step):
 		
 		delta_u = (tau[d-step] - tau[d])/mu
 		delta_d = (tau[d] - tau[d+step])/mu
 
 		expd = np.exp(-delta_u)
-		if delta_u <= 0.01:
+		#now some numerical expressions for the contributions:
+		if delta_u < 0.01:
 			w0=delta_u*(1.-delta_u/2.+delta_u**2/6.-delta_u**3/24.+delta_u**4/120.-delta_u**5/720.+delta_u**6/5040.-delta_u**7/40320.+delta_u**8/362880.)
 			w1=delta_u**2*(0.5-delta_u/3.+delta_u**2/8.-delta_u**3/30.+delta_u**4/144.-delta_u**5/840.+delta_u**6/5760.-delta_u**7/45360.+delta_u**8/403200.)
 			w2=delta_u**3*(1./3.-delta_u/4.+delta_u**2/10.-delta_u**3/36.+delta_u**4/168.-delta_u**5/960.+delta_u**6/6480.-delta_u**7/50400.+delta_u**8/443520.)
@@ -46,18 +64,19 @@ def sc_2nd_order(tau, S, mu, I_boundary):
 			w1 = w0 - delta_u * expd
 			w2 = 2.0 * w1 - delta_u * delta_u * expd
 
+		# coefficients that tells us how local, previous and the next source function
+		# contribute to the intensity
 		psi0 = w0 + (w1 * (delta_u/delta_d - delta_d / delta_u) - w2 * (1.0 / delta_d + 1.0 / delta_u)) / (delta_u + delta_d)
 		psiu = (w2 / delta_u + w1*delta_d/delta_u)/(delta_u+delta_d)
 		psid = (w2 / delta_d - w1 * delta_u/delta_d)/(delta_u+delta_d)
 
 		I[d] = I[d-step]*expd + psiu*S[d-step] + psi0*S[d] + psid*S[d+step]
 		L[d] = psi0
+	
 	#last point is linear:
-
 	d = end-step
 	delta_u = (tau[d-step] - tau[d])/mu
-	expd = np.exp(-delta_u)
-	
+	expd = np.exp(-delta_u)	
 	psi0 = 1.0 - 1.0/delta_u * (1.0 - expd)
 	psiu = -expd + 1.0/delta_u * (1.0 - expd)
 
